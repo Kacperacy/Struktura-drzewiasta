@@ -12,7 +12,7 @@ using Struktura_drzewiasta.Models;
 namespace Struktura_drzewiasta.Migrations
 {
     [DbContext(typeof(TreeDbContext))]
-    [Migration("20220324150800_firstmigration")]
+    [Migration("20220325174241_firstmigration")]
     partial class firstmigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,23 +36,27 @@ namespace Struktura_drzewiasta.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ParentId")
+                    b.Property<int?>("NodeId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("NodeId");
 
                     b.ToTable("Nodes");
                 });
 
             modelBuilder.Entity("Struktura_drzewiasta.Models.Node", b =>
                 {
-                    b.HasOne("Struktura_drzewiasta.Models.Node", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
+                    b.HasOne("Struktura_drzewiasta.Models.Node", null)
+                        .WithMany("Children")
+                        .HasForeignKey("NodeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
 
-                    b.Navigation("Parent");
+            modelBuilder.Entity("Struktura_drzewiasta.Models.Node", b =>
+                {
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

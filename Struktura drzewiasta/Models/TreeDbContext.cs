@@ -10,6 +10,14 @@ namespace Struktura_drzewiasta.Models
         }
         public DbSet<Node> Nodes { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Node>()
+                .HasMany(n => n.Children)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

@@ -16,22 +16,23 @@ namespace Struktura_drzewiasta.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    ParentId = table.Column<int>(type: "integer", nullable: true)
+                    NodeId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Nodes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Nodes_Nodes_ParentId",
-                        column: x => x.ParentId,
+                        name: "FK_Nodes_Nodes_NodeId",
+                        column: x => x.NodeId,
                         principalTable: "Nodes",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Nodes_ParentId",
+                name: "IX_Nodes_NodeId",
                 table: "Nodes",
-                column: "ParentId");
+                column: "NodeId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
