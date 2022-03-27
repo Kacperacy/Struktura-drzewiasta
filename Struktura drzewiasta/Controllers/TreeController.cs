@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Struktura_drzewiasta.DTO;
 using Struktura_drzewiasta.Models;
 
 namespace Struktura_drzewiasta.Controllers
@@ -93,58 +94,101 @@ namespace Struktura_drzewiasta.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Edit(int? id, string? name, string? parent)
+        async Task<bool> CheckIfPossible(Node node, Node targetNode)
         {
-            if (id is null)
+            var nodeWithChildren = await _context
+                .Nodes
+                .Include(n => n.Children)
+                .FirstOrDefaultAsync(n => n == node);
+
+            if (nodeWithChildren?.Children.FirstOrDefault() is null)
             {
-                return BadRequest();
+                return true;
             }
 
-            if (name is not null)
+            if (nodeWithChildren.Children.Contains(targetNode))
+            {
+                return false;
+            }
+
+            foreach (var child in nodeWithChildren.Children)
+            {
+                if (! await CheckIfPossible(child, targetNode))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public IActionResult VerifyEdit(string name, string node)
+        {
+            if (String.IsNullOrEmpty(name) && String.IsNullOrEmpty(node))
+            {
+                return Json(false);
+            }
+
+            return Json(true);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditFormDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (dto.NewName is not null)
             {
                 var node = await _context
                     .Nodes
-                    .FirstOrDefaultAsync(n => n.Id == id);
+                    .FirstOrDefaultAsync(n => n.Id == dto.SelectedNodeId);
 
                 if (node == null)
                 {
                     return NotFound();
                 }
 
-                node.Name = name;
+                node.Name = dto.NewName;
 
                 await _context.SaveChangesAsync();
             }
 
-            if (parent is not null)
+            if (dto.TargetNode is not null)
             {
                 var node = await _context
                     .Nodes
-                    .FirstOrDefaultAsync(n => n.Id == id);
+                    .FirstOrDefaultAsync(n => n.Id == dto.SelectedNodeId);
 
                 if (node == null)
                 {
                     return NotFound();
                 }
 
-                var parentId = int.Parse(parent.Split(".")[0]);
+                var targetParentId = int.Parse(dto.TargetNode.Split(".")[0]);
 
-                var parentNode = await _context
+                var targetParentNode = await _context
                     .Nodes
-                    .FirstOrDefaultAsync(n => n.Id == parentId);
+                    .FirstOrDefaultAsync(n => n.Id == targetParentId);
 
-                if (parentNode == null)
+                if (targetParentNode == null)
                 {
                     return NotFound();
                 }
 
-                if (node == parentNode)
+                if (node == targetParentNode)
                 {
                     return RedirectToAction("Index");
                 }
 
-                parentNode.Children.Add(node);
+                if (! await CheckIfPossible(node, targetParentNode))
+                {
+                    return BadRequest();
+                }
+
+                targetParentNode.Children.Add(node);
 
                 await _context.SaveChangesAsync();
             }
