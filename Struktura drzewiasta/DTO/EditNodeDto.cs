@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Struktura_drzewiasta.DTO
 {
-    public class EditFormDto
+    public class EditNodeDto
     {
         [Required]
         public int SelectedNodeId { get; set; }

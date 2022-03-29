@@ -21,6 +21,7 @@ namespace Struktura_drzewiasta.Controllers
                 .Nodes
                 .OrderBy(n => n.Id)
                 .ToListAsync();
+
             return View(nodes);
         }
 
@@ -48,39 +49,28 @@ namespace Struktura_drzewiasta.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string? name, string? parent)
+        public async Task<IActionResult> Create(CreateNodeDto dto)
         {
-            var isRoot = _context
-                .Nodes
-                .Any();
-
-            if (name is null || (parent is null && isRoot))
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return RedirectToAction("Index");
             }
 
-            if (parent is null)
+            var node = new Node()
             {
-                var root = new Node()
-                {
-                    Name = name
-                };
+                Name = dto.Name
+            };
 
-                await _context.Nodes.AddAsync(root);
+            if (dto.ParentNode is null)
+            {
+                await _context.Nodes.AddAsync(node);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
-            var parentId = int.Parse(parent.Split(".")[0]);
-
-            var node = new Node()
-            {
-                Name = name
-            };
-
             var parentNode = _context
                 .Nodes
-                .FirstOrDefault(n => n.Id == parentId);
+                .FirstOrDefault(n => n.Id == int.Parse(dto.ParentNode.FirstOrDefault(s => s.Selected).Value));
 
             if (parentNode == null)
             {
@@ -133,7 +123,7 @@ namespace Struktura_drzewiasta.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EditFormDto dto)
+        public async Task<IActionResult> Edit(EditNodeDto dto)
         {
             if (!ModelState.IsValid)
             {
