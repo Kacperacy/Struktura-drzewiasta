@@ -17,28 +17,25 @@ namespace Struktura_drzewiasta.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            ViewData["Sort"] = HttpContext.Request.Query["sort"];
+
             var nodes = await _context
-                .Nodes
-                .OrderBy(n => n.Id)
-                .ToListAsync();
+            .Nodes
+            .OrderBy(n => n.Id)
+            .ToListAsync();
 
             return View(nodes);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var node = _context
+            var node = await _context
                 .Nodes
-                .Where(n => n.Id == id);
+                .FirstOrDefaultAsync(n => n.Id == id);
 
             if (node == null)
             {
-                return NotFound();
+                return RedirectToAction("Index");
             }
 
             _context.Nodes.RemoveRange(node);
@@ -84,7 +81,7 @@ namespace Struktura_drzewiasta.Controllers
             return RedirectToAction("Index");
         }
 
-        async Task<bool> CheckIfPossible(Node node, Node targetNode)
+        private async Task<bool> CheckIfPossible(Node node, Node targetNode)
         {
             var nodeWithChildren = await _context
                 .Nodes
@@ -114,12 +111,7 @@ namespace Struktura_drzewiasta.Controllers
 
         public IActionResult VerifyEdit(string name, string node)
         {
-            if (String.IsNullOrEmpty(name) && String.IsNullOrEmpty(node))
-            {
-                return Json(false);
-            }
-
-            return Json(true);
+            return Json(!string.IsNullOrEmpty(name) || !string.IsNullOrEmpty(node));
         }
 
         [HttpPost]
@@ -138,7 +130,7 @@ namespace Struktura_drzewiasta.Controllers
 
                 if (node == null)
                 {
-                    return NotFound();
+                    return RedirectToAction("Index");
                 }
 
                 node.Name = dto.NewName;

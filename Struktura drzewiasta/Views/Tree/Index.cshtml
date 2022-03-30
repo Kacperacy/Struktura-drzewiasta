@@ -23,18 +23,28 @@
             }
             <label>
                 @Html.RadioButton("Id", node.Id.ToString())
-                @node.Id
+                @node.Id.
                 @node.Name
             </label>
             @Html.ActionLink("", "Delete", "Tree", new { id = node.Id }, new { @class = "bi bi-trash-fill text-decoration-none text-reset" })
         @if (node.Children.Count != 0)
         {
-        <ul style="list-style:none">
-            @foreach (var child in node.Children)
-            {
-                ShowTree(child);
-            }
-        </ul>
+            <ul style="list-style: none">
+                @if (ViewData["Sort"].ToString() == "Name")
+                {
+                    @foreach (var child in node.Children.OrderBy(n => n.Name))
+                    {
+                        ShowTree(child);
+                    }
+                }
+                else
+                {
+                    @foreach (var child in node.Children)
+                    {
+                        ShowTree(child);
+                    }
+                }
+            </ul>
         }
         </li>
     }
@@ -73,15 +83,22 @@
                     <input type="submit" class="mt-3"/>
                 </div>
                 <div class="w-75">
-                    <div class="d-flex">
-                        <button class="w-50 mb-3" type="button" v-on:click="foldList($event)">Fold list</button>
-                        <button class="w-50 mb-3" type="button" v-on:click="unfoldList($event)">Unfold list</button>
+                    <div class="d-flex mb-3">
+                        <button class="btn btn-primary w-50 m-2" type="button" v-on:click="foldList($event)">Fold list</button>
+                        <button class="btn btn-primary w-50 m-2" type="button" v-on:click="unfoldList($event)">Unfold list</button>
                     </div>
-                    <ul style="list-style:none" id="root">
-                        @{ ShowTree(Model.First()); }
-                    </ul>
+                    <div>
+                        <ul style="list-style:none" id="root">
+                            @{ ShowTree(Model.First()); }
+                        </ul>
+                    </div>
                 </div>
             }
+            <div class="d-flex" style="margin-left: 25%;">
+                @Html.ActionLink("Sort by Id", "Index", "Tree", new { sort = "Id"}, new { @class="btn btn-primary w-50 m-2"})
+                @Html.ActionLink("Sort by Name", "Index", "Tree", new { sort = "Name"}, new { @class="btn btn-primary w-50 m-2"})
+
+            </div>
         }
     </div>
 </div>
