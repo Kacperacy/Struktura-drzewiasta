@@ -9,7 +9,8 @@ namespace Struktura_drzewiasta.DTO
         [Display(Name ="Name")]
         [StringLength(64)]
         public string Name { get; set; }
+        public string? ParentNode { get; set; }
         [Display(Name ="Parent")]
-        public List<SelectListItem> ParentNode { get; set; }
+        public List<SelectListItem>? ParentNodeSelectList { get; set; }
     }
 }

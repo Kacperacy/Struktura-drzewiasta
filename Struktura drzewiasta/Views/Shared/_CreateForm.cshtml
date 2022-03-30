@@ -13,10 +13,10 @@
         @Html.TextBoxFor(m => m.Name, new { @class="w-75"})
     </div>
     <div class="d-flex flex-column">
-        @Html.LabelFor(m => m.ParentNode)
+        @Html.LabelFor(m => m.ParentNodeSelectList)
         @if (Model is not null)
         {
-            @Html.DropDownListFor(m => m.ParentNode, Model.ParentNode, new { @class="w-75"})
+            @Html.DropDownListFor(m => m.ParentNode, Model.ParentNodeSelectList, new { @class="w-75"})
         }
     </div>
     <input type="submit" class="w-75 mt-3"/>

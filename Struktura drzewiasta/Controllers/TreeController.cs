@@ -70,7 +70,7 @@ namespace Struktura_drzewiasta.Controllers
 
             var parentNode = _context
                 .Nodes
-                .FirstOrDefault(n => n.Id == int.Parse(dto.ParentNode.FirstOrDefault(s => s.Selected).Value));
+                .FirstOrDefault(n => n.Id == int.Parse(dto.ParentNode));
 
             if (parentNode == null)
             {

@@ -15,12 +15,12 @@
         <li>
             @if (node.Children.Count != 0)
             {
-        <span class="bi bi-folder-fill" v-on:click="toggle($event)" style="cursor:pointer"></span>
-        }
+                <span class="bi bi-folder-fill" v-on:click="toggle($event)" style="cursor:pointer"></span>
+            }
             else
             {
-        <span class="bi bi-folder" style="cursor:not-allowed"></span>
-        }
+                <span class="bi bi-folder" style="cursor:not-allowed"></span>
+            }
             <label>
                 @Html.RadioButton("Id", node.Id.ToString())
                 @node.Id
@@ -45,7 +45,7 @@
         @{
             var dto = new CreateNodeDto()
             {
-                ParentNode = Model.ToList().ConvertAll(i =>
+                ParentNodeSelectList = Model.ToList().ConvertAll(i =>
                 {
                     return new SelectListItem()
                     {
