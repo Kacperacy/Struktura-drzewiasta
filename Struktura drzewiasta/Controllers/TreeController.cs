@@ -15,9 +15,15 @@ namespace Struktura_drzewiasta.Controllers
         {
             _context = context;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? message)
         {
-            ViewData["Sort"] = HttpContext.Request.Query["sort"];
+            if(!string.IsNullOrEmpty(HttpContext.Request.Query["sort"]))
+            {
+                HttpContext.Session.SetString("sort", HttpContext.Request.Query["sort"]);
+            }
+
+            ViewData["Message"] = message;
+            ViewData["Sort"] = HttpContext.Session.GetString("sort");
 
             var nodes = await _context
             .Nodes
@@ -35,7 +41,7 @@ namespace Struktura_drzewiasta.Controllers
 
             if (node == null)
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { message = "Node not found" });
             }
 
             _context.Nodes.RemoveRange(node);
@@ -50,8 +56,12 @@ namespace Struktura_drzewiasta.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new{ message = "Invalid create data" });
             }
+
+            var nodes = await _context
+                .Nodes
+                .ToListAsync();
 
             var node = new Node()
             {
@@ -60,6 +70,10 @@ namespace Struktura_drzewiasta.Controllers
 
             if (dto.ParentNode is null)
             {
+                if (nodes.Any())
+                {
+                    return RedirectToAction("Index", new { message = "You must select parent node" });
+                }
                 await _context.Nodes.AddAsync(node);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
@@ -71,7 +85,7 @@ namespace Struktura_drzewiasta.Controllers
 
             if (parentNode == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", new { message = "Parent node not found" });
             }
 
             parentNode.Children.Add(node);
@@ -114,7 +128,7 @@ namespace Struktura_drzewiasta.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { message = "Invalid edit data" });
             }
 
             if (dto.NewName is not null)
@@ -125,7 +139,7 @@ namespace Struktura_drzewiasta.Controllers
 
                 if (node == null)
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { message = "Selected node not found" });
                 }
 
                 node.Name = dto.NewName;
@@ -141,7 +155,7 @@ namespace Struktura_drzewiasta.Controllers
 
                 if (node == null)
                 {
-                    return NotFound();
+                    return RedirectToAction("Index", new { message = "Selected node not found" });
                 }
 
                 var targetParentId = int.Parse(dto.TargetNode.Split(".")[0]);
@@ -152,17 +166,17 @@ namespace Struktura_drzewiasta.Controllers
 
                 if (targetParentNode == null)
                 {
-                    return NotFound();
+                    return RedirectToAction("Index", new { message = "Parent node not found" });
                 }
 
                 if (node == targetParentNode)
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { message = "You can't move node to this same node" });
                 }
 
                 if (! await CheckIfPossible(node, targetParentNode))
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { message = "You can't move node to sub node of this node" });
                 }
 
                 targetParentNode.Children.Add(node);

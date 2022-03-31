@@ -23,7 +23,7 @@
             @if (node.Children.Count != 0)
             {
                 <ul style="list-style: none">
-                    @if (ViewData["Sort"].ToString() == "Name")
+                    @if (ViewData["Sort"]?.ToString() == "Name")
                     {
                         @foreach (var child in node.Children.OrderBy(n => n.Name))
                         {

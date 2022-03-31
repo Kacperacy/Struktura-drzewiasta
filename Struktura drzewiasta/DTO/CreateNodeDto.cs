@@ -5,7 +5,7 @@ namespace Struktura_drzewiasta.DTO
 {
     public class CreateNodeDto
     {
-        [Required]
+        [Required(ErrorMessage = "You must enter node name")]
         [Display(Name ="Name")]
         [StringLength(64)]
         public string Name { get; set; }

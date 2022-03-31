@@ -9,24 +9,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 
+<div class="w-100 text-center bg-danger">
+    @ViewData["Message"]
+</div>
+
 <div class="d-flex" id="app">
     <div class="w-25">
         @{
             var createNodeDto = new CreateNodeDto()
             {
-                ParentNodeSelectList = Model.ToList().ConvertAll(i =>
+                ParentNodeSelectList = Model.ToList().ConvertAll(i => new SelectListItem()
                 {
-                    return new SelectListItem()
-                    {
-                        Text = i.Id + ". " + i.Name,
-                        Value = i.Id.ToString(),
-                        Selected = false
-                    };
+                    Text = i.Id + ". " + i.Name,
+                    Value = i.Id.ToString(),
+                    Selected = false
                 })
             };
             await Html.RenderPartialAsync("_CreateForm", createNodeDto);
         }
-        
+
     </div>
     <div class="w-75">
         @{

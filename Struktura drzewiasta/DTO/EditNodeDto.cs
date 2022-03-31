@@ -7,7 +7,7 @@ namespace Struktura_drzewiasta.DTO
 {
     public class EditNodeDto
     {
-        [Required]
+        [Required(ErrorMessage = "You must select node from list")]
         public int? SelectedNodeId { get; set; }
         [Display(Name = "Name")]
         public string? NewName { get; set; }
