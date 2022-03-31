@@ -1,0 +1,74 @@
+﻿@model Struktura_drzewiasta.DTO.EditNodeDto
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@functions{
+    private void ShowTree(Node node)
+    {
+        <li>
+             @if (node.Children.Count != 0)
+                {
+                <span class="bi bi-folder-fill" v-on:click="toggle($event)" style="cursor:pointer"></span>
+                }
+            else
+                {
+                <span class="bi bi-folder" style="cursor:not-allowed"></span>
+                }
+            <label>
+                @Html.RadioButtonFor(m => m.SelectedNodeId, node.Id.ToString())
+                @node.Id.
+                @node.Name
+            </label>
+            @Html.ActionLink("", "Delete", "Tree", new { id = node.Id }, new { @class = "bi bi-trash-fill text-decoration-none text-reset" })
+            @if (node.Children.Count != 0)
+            {
+                <ul style="list-style: none">
+                    @if (ViewData["Sort"].ToString() == "Name")
+                    {
+                        @foreach (var child in node.Children.OrderBy(n => n.Name))
+                        {
+                            ShowTree(child);
+                        }
+                    }
+                    else
+                    {
+                        @foreach (var child in node.Children)
+                        {
+                            ShowTree(child);
+                        }
+                    }
+                </ul>
+            }
+        </li>
+    }
+}
+
+@if (Model.Nodes.FirstOrDefault() is not null)
+{
+    @using (Html.BeginForm("Edit", "Tree", null, FormMethod.Post, true, new { @class="d-flex flex-row"}))
+    {
+        <div class="w-25 d-flex flex-column">
+            <h3>Edit</h3>
+            @Html.LabelFor(m => m.NewName)
+            @Html.TextBoxFor(m => m.NewName)
+            @Html.LabelFor(m => m.TargetNode)
+            @Html.DropDownListFor(m => m.TargetNode, new SelectList(Model.Nodes.Select(m=>m.Id + ". " + m.Name)), "Select parent")
+            <input type="submit" class="mt-3"/>
+        </div>
+        <div class="w-75">
+            <div class="d-flex mb-3">
+                <button class="btn btn-primary w-50 m-2" type="button" v-on:click="foldList($event)">Fold list</button>
+                <button class="btn btn-primary w-50 m-2" type="button" v-on:click="unfoldList($event)">Unfold list</button>
+            </div>
+            <div>
+                <ul style="list-style:none" id="root">
+                    @{ ShowTree(Model.Nodes.First()); }
+                </ul>
+            </div>
+        </div>
+    }
+    <div class="d-flex" style="margin-left: 25%;">
+        @Html.ActionLink("Sort by Id", "Index", "Tree", new { sort = "Id"}, new { @class="btn btn-primary w-50 m-2"})
+        @Html.ActionLink("Sort by Name", "Index", "Tree", new { sort = "Name"}, new { @class="btn btn-primary w-50 m-2"})
+    </div>
+}

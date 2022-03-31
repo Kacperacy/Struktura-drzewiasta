@@ -109,11 +109,6 @@ namespace Struktura_drzewiasta.Controllers
             return true;
         }
 
-        public IActionResult VerifyEdit(string name, string node)
-        {
-            return Json(!string.IsNullOrEmpty(name) || !string.IsNullOrEmpty(node));
-        }
-
         [HttpPost]
         public async Task<IActionResult> Edit(EditNodeDto dto)
         {
@@ -167,7 +162,7 @@ namespace Struktura_drzewiasta.Controllers
 
                 if (! await CheckIfPossible(node, targetParentNode))
                 {
-                    return BadRequest();
+                    return RedirectToAction("Index");
                 }
 
                 targetParentNode.Children.Add(node);
